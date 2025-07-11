@@ -57,6 +57,36 @@ app.get('/harvest', (req, res) => {
   res.json(data["Harvest crops"] || []);
 });
 
+// 🔍 Dynamic search route
+app.get('/search/:category/:query', (req, res) => {
+  const { category, query } = req.params;
+  const data = loadFarmData();
+
+  const categoryMap = {
+    fertilizer: "Fertilizer types",
+    pesticides: "Pesticides",
+    manure: "Manure types",
+    seeds: "Seed types",
+    irrigation: "Irrigation methods",
+    harvest: "Harvest crops"
+  };
+
+  const selectedCategory = categoryMap[category.toLowerCase()];
+
+  if (!selectedCategory || !data[selectedCategory]) {
+    return res.status(404).json({ error: "Category not found" });
+  }
+
+  const matches = data[selectedCategory].filter(item =>
+    item.toLowerCase().includes(query.toLowerCase())
+  );
+
+  res.json(matches);
+});
+
+
+
+
 // Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server listening at http://localhost:${PORT}`);
